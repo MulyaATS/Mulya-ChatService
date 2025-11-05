@@ -1,4 +1,4 @@
-FROM openjdk:21-jdk-slim AS builder
+FROM openjdk:17-jdk-slim AS builder
 
 RUN apt-get update && \
     apt-get install -y maven curl && \
@@ -14,7 +14,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # -------- Runtime Stage --------
-FROM openjdk:21-jdk-slim
+FROM openjdk:17-jdk-slim
 
 WORKDIR /app
 
