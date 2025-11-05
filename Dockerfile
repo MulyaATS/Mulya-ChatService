@@ -1,4 +1,5 @@
-FROM openjdk:17-jdk-slim AS builder
+# -------- Build Stage --------
+FROM eclipse-temurin:17-jdk-jammy AS builder
 
 RUN apt-get update && \
     apt-get install -y maven curl && \
@@ -14,7 +15,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # -------- Runtime Stage --------
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre-jammy
 
 WORKDIR /app
 
@@ -27,6 +28,6 @@ ENV PORT=$PORT
 
 COPY --from=builder /app/target/mymulyamessage-0.0.1-SNAPSHOT.jar app.jar
 
-EXPOSE $PORT
+EXPOSE ${PORT}
 
-ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=$SPRING_PROFILES_ACTIVE -Dserver.port=$PORT -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} -Dserver.port=${PORT} -jar app.jar"]
