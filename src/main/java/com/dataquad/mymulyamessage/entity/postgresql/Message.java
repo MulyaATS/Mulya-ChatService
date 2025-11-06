@@ -21,17 +21,8 @@ public class Message {
     
     private String content;
     
-    @Column(name = "file_name")
-    private String fileName;
-    
-    @Column(name = "file_type")
-    private String fileType;
-    
-    @Column(name = "file_size")
-    private Long fileSize;
-    
-    @Column(name = "file_data", columnDefinition = "BYTEA")
-    private byte[] fileData;
+    @Column(name = "file_id")
+    private Long fileId;
     
     @Column(name = "message_type")
     private String messageType = "TEXT";

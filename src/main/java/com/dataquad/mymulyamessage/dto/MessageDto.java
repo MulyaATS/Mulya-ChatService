@@ -16,4 +16,5 @@ public class MessageDto {
     private Long fileSize;
     private String messageType;
     private LocalDateTime sentAt;
+    private Long fileId;
 }

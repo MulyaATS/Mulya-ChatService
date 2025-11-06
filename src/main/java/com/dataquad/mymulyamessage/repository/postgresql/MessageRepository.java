@@ -24,5 +24,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
                                    @Param("user2") String user2, 
                                    Pageable pageable);
     
-    Optional<Message> findBySenderIdAndFileNameAndMessageType(String senderId, String fileName, String messageType);
+
 }

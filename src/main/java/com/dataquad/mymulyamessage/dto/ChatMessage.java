@@ -10,8 +10,6 @@ public class ChatMessage {
     private String recipientId;
     private String content;
     private String messageType;
-    private String fileName;
-    private String fileType;
-    private Long fileSize;
+    private Long fileId;
     private LocalDateTime sentAt;
 }

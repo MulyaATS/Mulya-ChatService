@@ -3,9 +3,11 @@ package com.dataquad.mymulyamessage.controller;
 import com.dataquad.mymulyamessage.dto.MessageDto;
 import com.dataquad.mymulyamessage.entity.mysql.User;
 import com.dataquad.mymulyamessage.entity.postgresql.Message;
+import com.dataquad.mymulyamessage.entity.postgresql.FileEntity;
 import com.dataquad.mymulyamessage.entity.postgresql.UserSession;
 import com.dataquad.mymulyamessage.repository.mysql.UserRepository;
 import com.dataquad.mymulyamessage.repository.postgresql.MessageRepository;
+import com.dataquad.mymulyamessage.repository.postgresql.FileRepository;
 import com.dataquad.mymulyamessage.repository.postgresql.UserSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,7 @@ public class ApiController {
     
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
+    private final FileRepository fileRepository;
     private final UserSessionRepository userSessionRepository;
 
     @GetMapping("/users/all")
@@ -109,11 +112,19 @@ public class ApiController {
         dto.setSenderId(message.getSenderId());
         dto.setRecipientId(message.getRecipientId());
         dto.setContent(message.getContent());
-        dto.setFileName(message.getFileName());
-        dto.setFileType(message.getFileType());
-        dto.setFileSize(message.getFileSize());
         dto.setMessageType(message.getMessageType());
         dto.setSentAt(message.getSentAt());
+        
+        // Add file info if it's a file message
+        if ("FILE".equals(message.getMessageType()) && message.getFileId() != null) {
+            FileEntity fileEntity = fileRepository.findById(message.getFileId()).orElse(null);
+            if (fileEntity != null) {
+                dto.setFileId(message.getFileId());
+                dto.setFileName(fileEntity.getOriginalName());
+                dto.setFileType(fileEntity.getFileType());
+                dto.setFileSize(fileEntity.getFileSize());
+            }
+        }
         
         Optional<User> user = userRepository.findById(message.getSenderId());
         dto.setSenderName(user.map(User::getUserName).orElse("Unknown"));
@@ -121,62 +132,5 @@ public class ApiController {
         return dto;
     }
 
-    @PostMapping("/files/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file,
-                                           @RequestParam("senderId") String senderId,
-                                           @RequestParam(value = "recipientId", required = false) String recipientId) {
-        try {
-            // Check if file already exists for this sender
-            Optional<Message> existingMessage = messageRepository.findBySenderIdAndFileNameAndMessageType(
-                senderId, file.getOriginalFilename(), "FILE");
-            
-            Message message;
-            if (existingMessage.isPresent()) {
-                // Update existing file
-                message = existingMessage.get();
-                message.setFileType(file.getContentType());
-                message.setFileSize(file.getSize());
-                message.setFileData(file.getBytes());
-                message.setSentAt(LocalDateTime.now()); // Update timestamp
-            } else {
-                // Create new file message
-                message = new Message();
-                message.setSenderId(senderId);
-                message.setRecipientId(recipientId);
-                message.setFileName(file.getOriginalFilename());
-                message.setFileType(file.getContentType());
-                message.setFileSize(file.getSize());
-                message.setFileData(file.getBytes());
-                message.setMessageType("FILE");
-                message.setContent("📎 " + file.getOriginalFilename());
-                message.setSentAt(LocalDateTime.now());
-            }
-            
-            Message savedMessage = messageRepository.save(message);
-            return ResponseEntity.ok(savedMessage.getId().toString());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("File upload failed");
-        }
-    }
 
-    @GetMapping("/files/{id}")
-    public ResponseEntity<byte[]> downloadFile(@PathVariable Long id) {
-        try {
-            Optional<Message> message = messageRepository.findById(id);
-            
-            if (message.isPresent()) {
-                Message fileMessage = message.get();
-                
-                if ("FILE".equals(fileMessage.getMessageType()) && fileMessage.getFileData() != null) {
-                    return ResponseEntity.ok()
-                            .header("Content-Disposition", "attachment; filename=\"" + fileMessage.getFileName() + "\"")
-                            .header("Content-Type", fileMessage.getFileType() != null ? fileMessage.getFileType() : "application/octet-stream")
-                            .body(fileMessage.getFileData());
-                }
-            }
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
-    }
 }
