@@ -1,0 +1,49 @@
+# Ignore Maven and Gradle build directories
+/target/
+/build/
+
+# Ignore Eclipse project files
+.project
+.classpath
+.settings/
+
+# Ignore IntelliJ IDEA project files
+.idea/
+*.iml
+
+# Ignore logs
+*.log
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore temporary files created by your IDE
+.vscode/
+
+# Ignore Spring Boot's executable JAR or WAR
+*.jar
+*.war
+
+# Ignore dependency directories
+/.mvn/
+.mvn/wrapper/
+
+# Ignore local environment files
+.env
+*.env
+
+# Ignore files related to testing
+/coverage/
+/test-outputs/
+
+# Ignore H2 database files (for in-memory databases)
+*.h2.db
+
+# Ignore generated files and folders
+/.gradle/
+.idea/
+*.bak
+
+# Ignore JDK files
+/.java/.jdk/
