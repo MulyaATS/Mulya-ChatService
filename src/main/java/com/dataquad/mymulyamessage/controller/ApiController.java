@@ -93,16 +93,18 @@ public class ApiController {
     }
 
     @GetMapping("/messages")
-    public List<MessageDto> getMessages(@RequestParam(defaultValue = "50") int limit) {
-        List<Message> messages = messageRepository.findByRecipientIdIsNullOrderBySentAtDesc(PageRequest.of(0, limit));
+    public List<MessageDto> getMessages(@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "10") int limit) {
+        List<Message> messages = messageRepository.findByRecipientIdIsNullOrderBySentAtDesc(PageRequest.of(page, limit));
         return messages.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
     @GetMapping("/messages/direct")
     public List<MessageDto> getDirectMessages(@RequestParam String user1, 
-                                            @RequestParam String user2, 
-                                            @RequestParam(defaultValue = "50") int limit) {
-        List<Message> messages = messageRepository.findDirectMessages(user1, user2, PageRequest.of(0, limit));
+                                            @RequestParam String user2,
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int limit) {
+        List<Message> messages = messageRepository.findDirectMessages(user1, user2, PageRequest.of(page, limit));
         return messages.stream().map(this::convertToDto).collect(Collectors.toList());
     }
     
