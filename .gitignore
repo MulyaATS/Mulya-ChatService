@@ -45,5 +45,6 @@ Thumbs.db
 .idea/
 *.bak
 
+
 # Ignore JDK files
 /.java/.jdk/
